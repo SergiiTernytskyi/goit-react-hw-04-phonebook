@@ -1,4 +1,3 @@
-import { Component } from 'react';
 import { Formik, ErrorMessage } from 'formik';
 import toast, { Toaster } from 'react-hot-toast';
 import PropTypes from 'prop-types';
@@ -22,27 +21,21 @@ const contactsSchema = yup.object().shape({
     .required('Contact name is required'),
   number: yup
     .string()
-    .phone('UA', true, 'Number must be a valid phone number (+380 XXX XX XX)')
+    .phone(
+      'UA',
+      true,
+      'Number must be a valid phone number (+380 XX XXX XX XX)'
+    )
     .required('Contact phone number is required'),
 });
 
 const initialValues = { name: '', number: '' };
 
-export class ContactsForm extends Component {
-  static propTypes = {
-    contacts: PropTypes.arrayOf(
-      PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        name: PropTypes.string,
-        number: PropTypes.string,
-      })
-    ),
-    addContact: PropTypes.func.isRequired,
-  };
+export const ContactsForm = ({ contacts, addContact }) => {
+  const nameId = nanoid();
+  const numberId = nanoid();
 
-  submitHandler = (value, { resetForm }) => {
-    const { contacts, addContact } = this.props;
-
+  const submitHandler = (value, { resetForm }) => {
     if (
       contacts.find(
         elem => elem.name.toLowerCase() === value.name.toLowerCase()
@@ -54,45 +47,52 @@ export class ContactsForm extends Component {
     resetForm();
   };
 
-  render() {
-    const nameId = nanoid();
-    const numberId = nanoid();
-    return (
-      <Formik
-        initialValues={initialValues}
-        onSubmit={this.submitHandler}
-        validationSchema={contactsSchema}
-      >
-        <FormContact autoComplete="off">
-          <InputWrapper>
-            <Label htmlFor={nameId}>
-              Name
-              <Input
-                id={nameId}
-                type="text"
-                name="name"
-                placeholder="Enter name"
-              />
-            </Label>
+  return (
+    <Formik
+      initialValues={initialValues}
+      onSubmit={submitHandler}
+      validationSchema={contactsSchema}
+    >
+      <FormContact autoComplete="off">
+        <InputWrapper>
+          <Label htmlFor={nameId}>
+            Name
+            <Input
+              id={nameId}
+              type="text"
+              name="name"
+              placeholder="Enter name"
+            />
+          </Label>
 
-            <Label htmlFor={numberId}>
-              Phone number
-              <Input
-                id={numberId}
-                type="tel"
-                name="number"
-                placeholder="Enter phone number"
-              />
-            </Label>
-          </InputWrapper>
+          <Label htmlFor={numberId}>
+            Phone number
+            <Input
+              id={numberId}
+              type="tel"
+              name="number"
+              placeholder="Enter phone number"
+            />
+          </Label>
+        </InputWrapper>
 
-          <ErrorMessage component={Error} name="name" />
-          <ErrorMessage component={Error} name="number" />
-          <Toaster position="top-right" reverseOrder={false} />
+        <ErrorMessage component={Error} name="name" />
+        <ErrorMessage component={Error} name="number" />
+        <Toaster position="top-right" reverseOrder={false} />
 
-          <AddButton type="submit">Add contact</AddButton>
-        </FormContact>
-      </Formik>
-    );
-  }
-}
+        <AddButton type="submit">Add contact</AddButton>
+      </FormContact>
+    </Formik>
+  );
+};
+
+ContactsForm.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string,
+      number: PropTypes.string,
+    })
+  ),
+  addContact: PropTypes.func.isRequired,
+};
